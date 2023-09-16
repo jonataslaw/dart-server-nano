@@ -1,6 +1,5 @@
 part of server_nano;
 
-///
 class MultipartUpload {
   final String? name;
   final String? mimeType;

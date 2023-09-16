@@ -389,7 +389,7 @@ $server
   }
 }
 
-class _VirtualDirectoryFileStream extends StreamConsumer<List<int>> {
+class _VirtualDirectoryFileStream implements StreamConsumer<List<int>> {
   final HttpResponse response;
   final String path;
   List<int>? buffer = [];

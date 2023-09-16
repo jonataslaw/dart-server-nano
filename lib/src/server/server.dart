@@ -57,7 +57,7 @@ class Server {
     String? privateKey,
     String? password,
   }) {
-    handle(HttpServer server) {
+    Server handle(HttpServer server) {
       _server = server;
       server.listen((HttpRequest req) {
         final match = _tree.matchRoute(req.uri.path);

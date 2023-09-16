@@ -17,6 +17,8 @@ void main() {
       print(message);
     });
 
+    socket.join('tech-group');
+
     socket.emitToRoom(
         'connected', 'tech-group', 'User connected to tech-group');
   });
