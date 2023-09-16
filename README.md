@@ -6,6 +6,8 @@ A light, fast, and friendly server written in Dart.
 - **Fast**: Prioritizes performance at every turn.
 - **Friendly**: Intuitive APIs tailored for both novices and experts.
 
+I write this library in rust too, for reference: **[server_nano_rust]([https://github.com/jonataslaw/server_nano])**
+
 ## 🚀 Getting Started
 
 ### Installation
