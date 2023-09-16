@@ -119,7 +119,7 @@ The `MultipartUpload` class represents a file or data segment from a 'multipart/
 
 ### Response:
 
-The `Response` object provides a variety of methods to help you construct your response. Here's a list of all the methods available:
+The `ContextResponse` class provides a variety of methods to help you construct your response. Here's a list of all the methods available:
 
 - **getHeader(String name)**: Retrieves a header by its name.
 - **setHeader(String name, Object value)**: Sets a header with a specific value.
