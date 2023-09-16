@@ -16,7 +16,7 @@ abstract class GetSocket {
 
   void close([int? status, String? reason]);
 
-  bool join(String? room);
+  bool join(String room);
 
   bool leave(String room);
 
@@ -40,9 +40,9 @@ abstract class GetSocket {
 
   void emitToAll(String event, Object data);
 
-  void sendToRoom(String? room, Object message);
+  void sendToRoom(String room, Object message);
 
-  void emitToRoom(String event, String? room, Object message);
+  void emitToRoom(String event, String room, Object message);
 
   void broadcastToRoom(String room, Object message);
 
@@ -162,7 +162,7 @@ class _GetSocketImpl implements GetSocket {
   }
 
   @override
-  void sendToRoom(String? room, Object message) {
+  void sendToRoom(String room, Object message) {
     _checkAvailable();
     if (rooms.containsKey(room) && rooms[room]!.contains(this)) {
       for (var element in rooms[room]!) {
@@ -172,7 +172,7 @@ class _GetSocketImpl implements GetSocket {
   }
 
   @override
-  void emitToRoom(String event, String? room, Object message) {
+  void emitToRoom(String event, String room, Object message) {
     _checkAvailable();
     if (rooms.containsKey(room) && rooms[room]!.contains(this)) {
       for (var element in rooms[room]!) {
@@ -204,7 +204,7 @@ class _GetSocketImpl implements GetSocket {
   }
 
   @override
-  bool join(String? room) {
+  bool join(String room) {
     _checkAvailable();
     if (rooms.containsKey(room)) {
       return rooms[room]!.add(this);
