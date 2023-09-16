@@ -1,51 +1,5 @@
 part of server_nano;
 
-class MultipartUpload {
-  final String? name;
-  final String? mimeType;
-  final dynamic contentTransferEncoding;
-  final List<int> bytes;
-
-  String get data => base64Encode(bytes);
-
-  const MultipartUpload(
-    this.name,
-    this.mimeType,
-    this.contentTransferEncoding,
-    this.bytes,
-  );
-
-  dynamic toJson() => {
-        'name': name,
-        'mimeType': mimeType,
-        'bytes': bytes,
-        'fileBase64': data,
-        'contentTransferEncoding': '$contentTransferEncoding'
-      };
-
-  Future<File> toFile(String filePath) async {
-    final file = File(filePath);
-    await file.writeAsBytes(bytes);
-    return file;
-  }
-
-  @override
-  String toString() => toJson().toString();
-}
-
-enum Method {
-  post,
-  get,
-  put,
-  delete,
-  ws,
-  options,
-  patch,
-  head,
-  connect,
-  trace,
-}
-
 class ContextRequest {
   final HttpRequest _request;
   final Method requestMethod;
@@ -213,6 +167,52 @@ class ContextRequest {
     return HttpMultipartFormData._(
         contentType, disposition, encoding, multipart, stream, isText);
   }
+}
+
+class MultipartUpload {
+  final String? name;
+  final String? mimeType;
+  final dynamic contentTransferEncoding;
+  final List<int> bytes;
+
+  String get data => base64Encode(bytes);
+
+  const MultipartUpload(
+    this.name,
+    this.mimeType,
+    this.contentTransferEncoding,
+    this.bytes,
+  );
+
+  dynamic toJson() => {
+        'name': name,
+        'mimeType': mimeType,
+        'bytes': bytes,
+        'fileBase64': data,
+        'contentTransferEncoding': '$contentTransferEncoding'
+      };
+
+  Future<File> toFile(String filePath) async {
+    final file = File(filePath);
+    await file.writeAsBytes(bytes);
+    return file;
+  }
+
+  @override
+  String toString() => toJson().toString();
+}
+
+enum Method {
+  post,
+  get,
+  put,
+  delete,
+  ws,
+  options,
+  patch,
+  head,
+  connect,
+  trace,
 }
 
 const _transparentEncodings = ['7bit', '8bit', 'binary'];
