@@ -5,8 +5,10 @@ A light, fast, and friendly server written in Dart.
 - **Lightweight**: Minimal footprint for optimal efficiency.
 - **Fast**: Prioritizes performance at every turn.
 - **Friendly**: Intuitive APIs tailored for both novices and experts.
+- **Secure**: Built with best security practices to ensure data safety.
+- **Powerful**: Robust features to cater to a wide range of applications, like rich websockets with room support, events, and broadcasting capabilities.
 
-I write this library in rust too, for reference: [server_nano_rust](https://github.com/jonataslaw/server_nano)
+I'm building the same library in rust too, if you want, [check it here](https://github.com/jonataslaw/server_nano).
 
 ## 🚀 Getting Started
 
@@ -149,7 +151,13 @@ res.status(200).setContentType('text/plain').send('Hello, World!');
 
 ### WebSocket:
 
-Server nano supports rich websockets out-the-box, with very useful features.
+Server nano supports comprehensive websockets right out-of-the-box, catering to a broad spectrum of real-time applications. The websocket module offers:
+
+- **Rich Features**: From basic message sending to advanced event emitting.
+- **Room Management**: Handle user groups effortlessly with join, leave, and broadcast-to-room functions.
+- **Event Listeners**: Customizable listeners for various socket events.
+- **Broadcasting**: Reach one, some, or all connected clients with fine-tuned control.
+
 You can set up a WebSocket route by calling the `ws` method on your server instance:
 
 ```dart
