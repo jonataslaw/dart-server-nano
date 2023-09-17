@@ -232,8 +232,13 @@ Creating a custom middleware is straightforward. Simply extend the `Middleware` 
 ```dart
 class CustomMiddleware extends Middleware {
   @override
-  void handler(ContextRequest req, ContextResponse res) {
+  Future<bool> handler(ContextRequest req, ContextResponse res) async{
     // Your custom logic here.
+
+    // Return true to continue to the next middleware.
+    // Return false to stop the middleware chain.
+    return true;
+
   }
 }
 ```

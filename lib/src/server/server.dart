@@ -1,7 +1,7 @@
 part of server_nano;
 
 abstract class Middleware {
-  void handler(ContextRequest req, ContextResponse res);
+  Future<bool> handler(ContextRequest req, ContextResponse res);
 }
 
 class Cors extends Middleware {
@@ -18,7 +18,7 @@ class Cors extends Middleware {
   });
 
   @override
-  Future<void> handler(ContextRequest req, ContextResponse res) async {
+  Future<bool> handler(ContextRequest req, ContextResponse res) async {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Methods', methods);
     res.setHeader('Access-Control-Allow-Headers', headers);
@@ -28,19 +28,21 @@ class Cors extends Middleware {
     if (req.method.toLowerCase() == 'options') {
       res._response.statusCode = HttpStatus.noContent;
       await res._response.close();
-      return;
+      return false;
     }
+    return true;
   }
 }
 
 class Helmet extends Middleware {
   @override
-  void handler(ContextRequest req, ContextResponse res) {
+  Future<bool> handler(ContextRequest req, ContextResponse res) async {
     res.setHeader('X-XSS-Protection', '1; mode=block');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.setHeader('Referrer-Policy', 'same-origin');
     res.setHeader('Content-Security-Policy', "default-src 'self'");
+    return true;
   }
 }
 
