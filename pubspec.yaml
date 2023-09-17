@@ -1,5 +1,5 @@
 name: server_nano
-version: 1.0.2
+version: 1.1.0
 homepage: http://github.com/jonataslaw/dart-server-nano
 description: A light, fast, and friendly server written in dart.
 

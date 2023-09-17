@@ -1,3 +1,7 @@
+# 1.1.0
+
+- Refactor middleware to allow interrupting the request
+
 # 1.0.2
 
 - Added docs
