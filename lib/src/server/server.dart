@@ -131,53 +131,58 @@ class Server {
     return this;
   }
 
-  Server ws(path, WsHandler handler) {
-    _tree.addRoute(path, Handler(method: Method.ws, wsHandler: handler));
+  Server ws(String path, WsHandler handler) {
+    request(path, Handler(method: Method.ws, wsHandler: handler));
     return this;
   }
 
-  Server get(path, HttpHandler handler) {
-    _tree.addRoute(path, Handler(method: Method.get, httpHandler: handler));
+  Server request(String path, Handler handler) {
+    _tree.addRoute(path, handler);
     return this;
   }
 
-  Server options(path, HttpHandler handler) {
-    _tree.addRoute(path, Handler(method: Method.options, httpHandler: handler));
+  Server get(String path, HttpHandler handler) {
+    request(path, Handler(method: Method.get, httpHandler: handler));
     return this;
   }
 
-  Server post(path, HttpHandler handler) {
-    _tree.addRoute(path, Handler(method: Method.post, httpHandler: handler));
+  Server options(String path, HttpHandler handler) {
+    request(path, Handler(method: Method.options, httpHandler: handler));
     return this;
   }
 
-  Server patch(path, HttpHandler handler) {
-    _tree.addRoute(path, Handler(method: Method.patch, httpHandler: handler));
+  Server post(String path, HttpHandler handler) {
+    request(path, Handler(method: Method.post, httpHandler: handler));
     return this;
   }
 
-  Server put(path, HttpHandler handler) {
-    _tree.addRoute(path, Handler(method: Method.put, httpHandler: handler));
+  Server patch(String path, HttpHandler handler) {
+    request(path, Handler(method: Method.patch, httpHandler: handler));
     return this;
   }
 
-  Server delete(path, HttpHandler handler) {
-    _tree.addRoute(path, Handler(method: Method.delete, httpHandler: handler));
+  Server put(String path, HttpHandler handler) {
+    request(path, Handler(method: Method.put, httpHandler: handler));
     return this;
   }
 
-  Server head(path, HttpHandler handler) {
-    _tree.addRoute(path, Handler(method: Method.head, httpHandler: handler));
+  Server delete(String path, HttpHandler handler) {
+    request(path, Handler(method: Method.delete, httpHandler: handler));
     return this;
   }
 
-  Server connect(path, HttpHandler handler) {
-    _tree.addRoute(path, Handler(method: Method.connect, httpHandler: handler));
+  Server head(String path, HttpHandler handler) {
+    request(path, Handler(method: Method.head, httpHandler: handler));
     return this;
   }
 
-  Server trace(path, HttpHandler handler) {
-    _tree.addRoute(path, Handler(method: Method.trace, httpHandler: handler));
+  Server connect(String path, HttpHandler handler) {
+    request(path, Handler(method: Method.connect, httpHandler: handler));
+    return this;
+  }
+
+  Server trace(String path, HttpHandler handler) {
+    request(path, Handler(method: Method.trace, httpHandler: handler));
     return this;
   }
 
