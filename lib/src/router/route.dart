@@ -13,15 +13,20 @@ class Handler {
   final Map<String, HashSet<GetSocket>> _rooms = <String, HashSet<GetSocket>>{};
   final HashSet<GetSocket> _sockets = HashSet<GetSocket>();
 
-  void handle(HttpRequest req,
-      {required MatchResult match, required List<Middleware> middlewares}) {
+  Future<void> handle(HttpRequest req,
+      {required MatchResult match,
+      required List<Middleware> middlewares}) async {
     final localMethod = method;
 
     var request = ContextRequest(req, localMethod, match.parameters);
     final response = ContextResponse(req.response);
 
     for (final middleware in middlewares) {
-      middleware.handler(request, response);
+      final result = await middleware.handler(request, response);
+      if (!result) {
+        logger('Request blocked by middleware');
+        return;
+      }
     }
 
     if (localMethod == Method.ws) {
