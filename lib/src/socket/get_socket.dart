@@ -81,9 +81,14 @@ class _GetSocketImpl implements GetSocket {
       close();
     }, onDone: () {
       sockets.remove(this);
+      final roomsForDelete = <String?>[];
       for (String? room in rooms.keys) {
         rooms[room]?.remove(this);
+        if (rooms[room]?.isEmpty == true) {
+          roomsForDelete.add(room);
+        }
       }
+      rooms.removeWhere((key, value) => roomsForDelete.contains(key));
       socketNotifier!.notifyClose(Close(this, 'Connection closed', 1), this);
       socketNotifier!.dispose();
       socketNotifier = null;
