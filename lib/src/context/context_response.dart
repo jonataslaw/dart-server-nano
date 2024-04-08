@@ -1,4 +1,4 @@
-part of server_nano;
+part of '../../server_nano.dart';
 
 typedef DisposeCallback = void Function();
 
@@ -20,9 +20,6 @@ typedef DisposeCallback = void Function();
 ///   res.json({'id': req.params['id']});
 /// });
 ///
-/// server.listen(port: 3000);
-///
-/// }
 /// ```
 ///
 /// See also:
@@ -31,12 +28,15 @@ typedef DisposeCallback = void Function();
 class ContextResponse {
   final HttpResponse _response;
 
+  /// Creates a new instance of [ContextResponse] with the given [HttpResponse].
   ContextResponse(this._response);
 
+  /// Returns the header by the given name.
   List<String>? getHeader(String name) {
     return _response.headers[name];
   }
 
+  /// Sets the header with the given name and value.
   ContextResponse setHeader(String name, Object value) {
     _response.headers.set(name, value);
     return this;
@@ -68,6 +68,9 @@ class ContextResponse {
     return this;
   }
 
+  /// Sets the cookie with the given name and value.
+  /// The options map can have the following
+  /// keys: domain, expires, httpOnly, maxAge, name, path, secure, value.
   ContextResponse setCookie(String name, String val,
       [Map<String, dynamic> options = const {}]) {
     var encodedName = Uri.encodeQueryComponent(name);
@@ -117,10 +120,12 @@ class ContextResponse {
     return setCookie(name, '', options);
   }
 
+  /// Returns the cookie with the given name.
   Cookie getCookie(String name) {
     return _response.cookies.firstWhere((cookie) => cookie.name == name);
   }
 
+  /// Returns all the cookies.
   List<Cookie> get cookies => _response.cookies;
 
   /// Sets the Content-Disposition HTTP header to "attachment" with the given filename.
@@ -137,23 +142,65 @@ class ContextResponse {
     return this;
   }
 
+  /// Sends the given object as a response.
+  /// If the object is a string, it will be written to the response.
+  /// If the object is a map or list, it will be encoded to json and sent.
   Future send(Object string) async {
     _response.write(string);
     return close();
   }
 
+  /// Sends the given object as a json response.
+  /// The object will be encoded to json and sent.
+  /// The Content-Type header will be set to "application/json".
+  /// The charset will be set to "UTF-8".
+  ///
+  /// Example:
+  /// ```dart
+  /// void main() {
+  /// final server = Server();
+  ///
+  /// server.get('/json', (req, res) {
+  ///  res.json({'Hello': 'World!'});
+  /// });
   Future sendJson(Object data) {
     _response.headers.set('Content-Type', 'application/json; charset=UTF-8');
     _response.write(jsonEncode(data));
     return close();
   }
 
-  Future sendHtmlText(Object data) {
+  /// Sends the given html string as a response.
+  /// The Content-Type header will be set to "text/html".
+  /// The charset will be set to "UTF-8".
+  ///
+  /// Example:
+  /// ```dart
+  /// void main() {
+  /// final server = Server();
+  ///
+  /// server.get('/html', (req, res) {
+  /// res.sendHtmlText('<h1>Hello World!</h1>');
+  /// });
+  Future sendHtmlText(String data) {
     _response.headers.set('Content-Type', 'text/html; charset=UTF-8');
     _response.write(data);
     return close();
   }
 
+  /// Sends the given file as a response.
+  /// The Content-Type header will be set based on the file's extension.
+  /// The Content-Length header will be set to the file's length.
+  /// The file will be streamed to the response.
+  /// If the file is not found, a 404 status code will be sent.
+  ///
+  /// Example:
+  /// ```dart
+  /// void main() {
+  /// final server = Server();
+  ///
+  /// server.get('/file', (req, res) {
+  /// res.sendFile('path/to/file');
+  /// });
   Future sendFile(String path) {
     var file = File(path);
 
@@ -171,6 +218,7 @@ class ContextResponse {
     }, test: (e) => e == 404);
   }
 
+  /// Closes the response. This method should be called after sending the response.
   Future close() {
     final newClose = _response.close();
     _dispose?.call();

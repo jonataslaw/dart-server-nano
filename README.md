@@ -1,6 +1,6 @@
 # server_nano
 
-A light, fast, and friendly server written in Dart.
+A light, **very fast**, and friendly http/websocket server written in dart.
 
 - **Lightweight**: Minimal footprint for optimal efficiency.
 - **Fast**: Prioritizes performance at every turn.
@@ -54,6 +54,129 @@ void main() {
   server.listen(port: 3000);
 }
 ```
+
+# How fast is it?
+
+`server_nano` is designed to be as fast as possible.
+
+Here is a test using `wrk` to measure the performance of the server in a Macbook Pro M1:
+
+```shell
+@MacBook-Pro dart-server % wrk -t 6 -c 120 -d 10s --latency http://localhost:3000/
+Running 10s test @ http://localhost:3000/
+  6 threads and 120 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.92ms    4.66ms 126.59ms   95.70%
+    Req/Sec    17.22k     3.79k   88.09k    90.02%
+  Latency Distribution
+     50%    0.98ms
+     75%    1.46ms
+     90%    2.65ms
+     99%   22.92ms
+  1029931 requests in 10.10s, 214.12MB read
+Requests/sec: 101972.97
+Transfer/sec:     21.20MB
+```
+
+In this test, we have a endopoint that returns a simple json object.
+
+```dart
+// We compile the code with the command: `dart compile exe ./example/app.dart` and `./example/app.exe` to run the server.
+Future<void> main() async {
+  final server = Server();
+
+  server.get('/', (req, res) {
+    res.sendJson({'Hello': 'World!'});
+  });
+
+  await server.listen(port: 3000);
+}
+```
+
+To compare, here is the same test using `express`, the most popular web framework for Node.js:
+
+```typescript
+const expressApp = express();
+
+const expressPort = 3003;
+
+expressApp.get("/", (req, res) => {
+  res.json({ hello: "world!!!" });
+});
+
+expressApp.listen(expressPort, () => {
+  console.log(`[server]: Server is running at http://localhost:${expressPort}`);
+});
+```
+
+```shell
+@MacBook-Pro ~ % wrk -t 6 -c 120 -d 10s --latency http://localhost:3003/
+Running 10s test @ http://localhost:3003/
+  6 threads and 120 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    10.23ms   30.90ms 542.87ms   98.17%
+    Req/Sec     2.99k   358.79     3.72k    89.92%
+  Latency Distribution
+     50%    6.24ms
+     75%    6.91ms
+     90%    8.13ms
+     99%  164.88ms
+  180310 requests in 10.10s, 43.85MB read
+Requests/sec:  17848.16
+Transfer/sec:      4.34MB
+```
+
+Holy moly! `server_nano` could handle 101972.97 requests per second, while `express` could handle only 17848.16 requests per second. That's a huge difference!
+
+So, let's compare the performance of `server_nano` with `fastify`, a fast and second more popular web framework for Node.js:
+
+```typescript
+const fastifyPort = 3002;
+
+const fastify = Fastify({
+  logger: false,
+});
+
+fastify.get("/", (request, reply) => {
+  return { hello: "world!!!" };
+});
+
+fastify.listen({ port: fastifyPort, host: "0.0.0.0" }, (err, address) => {
+  if (err) throw err;
+  console.log(`[server]: Server is running at http://localhost:${fastifyPort}`);
+});
+```
+
+```shell
+@MacBook-Pro ~ % wrk -t 6 -c 120 -d 10s --latency http://localhost:3002/
+Running 10s test @ http://localhost:3002/
+  6 threads and 120 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     3.32ms    8.68ms 228.04ms   99.00%
+    Req/Sec     7.61k   707.93     8.25k    92.24%
+  Latency Distribution
+     50%    2.53ms
+     75%    2.65ms
+     90%    2.85ms
+     99%   11.75ms
+  458601 requests in 10.10s, 83.53MB read
+Requests/sec:  45398.17
+Transfer/sec:      8.27MB
+```
+
+Good job fastify! But `server_nano` is still faster! 😎 (a lot faster)
+
+# Why to use server_nano? 🤔
+
+- **Performance**: `server_nano` is designed to be as fast as possible.
+- **Friendly API**: `server_nano` provides an intuitive API that is easy to use. It is like express.js but in dart (and faster).
+- **Websockets**: `server_nano` supports websockets out-the-box.
+- **Middlewares**: `server_nano` supports middlewares to help you manipulate request and response objects.
+- **Static Files**: `server_nano` supports serving static files out of the box.
+- **Security**: `server_nano` supports https and has a helmet middleware to mitigate common web vulnerabilities.
+- **Cross-platform**: `server_nano` is cross-platform and can run on ANY THING!
+- **Open Source**: `server_nano` is open source and free to use.
+- **Minimal Footprint**: `server_nano` has a minimal footprint for optimal efficiency. You can read the entire source code in a few minutes.
 
 # 📘 API Reference:
 

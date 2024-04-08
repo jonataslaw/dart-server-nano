@@ -1,4 +1,4 @@
-part of server_nano;
+part of '../../server_nano.dart';
 
 void logger(String value, {bool isError = false}) {
   if (isError) {

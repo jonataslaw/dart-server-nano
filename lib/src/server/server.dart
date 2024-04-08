@@ -1,49 +1,19 @@
-part of server_nano;
+part of '../../server_nano.dart';
 
-abstract class Middleware {
-  Future<bool> handler(ContextRequest req, ContextResponse res);
-}
+class _IsolateMessage {
+  final String host;
+  final int port;
+  final String? certificateChain;
+  final String? privateKey;
+  final String? password;
 
-class Cors extends Middleware {
-  final String origin;
-  final String methods;
-  final String headers;
-  final String allowCrendentials;
-
-  Cors({
-    this.origin = '*',
-    this.methods = 'GET, POST, PUT, DELETE, OPTIONS',
-    this.headers = 'Content-Type, Authorization, X-Requested-With',
-    this.allowCrendentials = 'true',
+  _IsolateMessage({
+    required this.host,
+    required this.port,
+    required this.certificateChain,
+    required this.privateKey,
+    required this.password,
   });
-
-  @override
-  Future<bool> handler(ContextRequest req, ContextResponse res) async {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', methods);
-    res.setHeader('Access-Control-Allow-Headers', headers);
-    res.setHeader('Access-Control-Allow-Credentials', allowCrendentials);
-
-    // Handle preflight requests
-    if (req.method.toLowerCase() == 'options') {
-      res._response.statusCode = HttpStatus.noContent;
-      await res._response.close();
-      return false;
-    }
-    return true;
-  }
-}
-
-class Helmet extends Middleware {
-  @override
-  Future<bool> handler(ContextRequest req, ContextResponse res) async {
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-    res.setHeader('Referrer-Policy', 'same-origin');
-    res.setHeader('Content-Security-Policy', "default-src 'self'");
-    return true;
-  }
 }
 
 class Server {
@@ -58,7 +28,34 @@ class Server {
     String? certificateChain,
     String? privateKey,
     String? password,
-  }) {
+  }) async {
+    final cpus = Platform.numberOfProcessors - 1;
+
+    final message = _IsolateMessage(
+      host: host,
+      port: port,
+      certificateChain: certificateChain,
+      privateKey: privateKey,
+      password: password,
+    );
+    for (int i = 0; i < cpus; i++) {
+      await Isolate.spawn(_listen, message);
+    }
+
+    await _listen(message);
+
+    logger('Server started, listening on $host:$port');
+
+    return this;
+  }
+
+  Future<Server> _listen(_IsolateMessage message) {
+    final host = message.host;
+    final port = message.port;
+    final certificateChain = message.certificateChain;
+    final privateKey = message.privateKey;
+    final password = message.password;
+
     Server handle(HttpServer server) {
       _server = server;
       server.listen((HttpRequest req) {
@@ -80,8 +77,6 @@ class Server {
         }
       });
 
-      logger('Server started, listening on $host:$port');
-
       return this;
     }
 
@@ -93,9 +88,10 @@ class Server {
       }
       var key = File(privateKey);
       context.usePrivateKey(key.path, password: password);
-      return HttpServer.bindSecure(host, port, context).then(handle);
+      return HttpServer.bindSecure(host, port, context, shared: true)
+          .then(handle);
     }
-    return HttpServer.bind(host, port).then(handle);
+    return HttpServer.bind(host, port, shared: true).then(handle);
   }
 
   void stop() {
