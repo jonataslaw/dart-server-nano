@@ -1,4 +1,4 @@
-part of server_nano;
+part of '../../server_nano.dart';
 
 class _DirectoryRedirect {
   const _DirectoryRedirect();

@@ -1,10 +1,10 @@
 import 'package:server_nano/server_nano.dart';
 
-void main() {
+Future<void> main() async {
   final server = Server();
 
   server.get('/', (req, res) {
-    res.send('Hello World!');
+    res.sendJson({'Hello': 'World!'});
   });
 
   server.get('/user/:id', (req, res) async {
@@ -23,5 +23,5 @@ void main() {
         'connected', 'tech-group', 'User connected to tech-group');
   });
 
-  server.listen(port: 3000);
+  await server.listen(port: 3000);
 }

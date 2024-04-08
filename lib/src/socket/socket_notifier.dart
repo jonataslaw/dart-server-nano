@@ -1,4 +1,4 @@
-part of server_nano;
+part of '../../server_nano.dart';
 
 class _SocketNotifier {
   List<MessageSocket>? _onMessages = <MessageSocket>[];
@@ -29,7 +29,7 @@ class _SocketNotifier {
     _tryOn(data);
   }
 
-  void notifyClose(Close err, GetSocket newWs) {
+  void notifyClose(Close err, NanoSocket newWs) {
     logger('Socket ${newWs.hashCode} is been disposed');
 
     for (var item in _onCloses!) {
@@ -65,14 +65,14 @@ class _SocketNotifier {
   }
 }
 
-typedef OpenSocket = void Function(GetSocket socket);
+typedef OpenSocket = void Function(NanoSocket socket);
 
 typedef CloseSocket = void Function(Close);
 
 typedef MessageSocket = void Function(dynamic val);
 
 class Close {
-  final GetSocket socket;
+  final NanoSocket socket;
   final String message;
   final int reason;
 

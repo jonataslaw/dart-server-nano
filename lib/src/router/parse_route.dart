@@ -1,5 +1,10 @@
-part of server_nano;
+part of '../../server_nano.dart';
 
+/// A class representing a route tree result.
+/// Contains a [MatchResult] and a [Handler].
+///
+/// The [MatchResult] contains the matched route and its parameters.
+/// The [Handler] contains the handler function for the matched route.
 class RouteTreeResult {
   final MatchResult match;
   final Handler handler;
@@ -7,15 +12,19 @@ class RouteTreeResult {
   RouteTreeResult(this.match, this.handler);
 }
 
+/// A class representing a routing tree that is used to match routes to handlers.
 class RouteTree {
-  final _matcher = RouteMatcher();
+  final _matcher = _RouteMatcher();
   final Map<String, Handler> _tree = {};
 
+// Adds a route to the tree.
   void addRoute(String path, Handler handler) {
     _matcher.addRoute(path);
     _tree[path] = handler;
   }
 
+  /// Matches a route to a handler.
+  /// Returns a [RouteTreeResult] if a match is found, otherwise returns null.
   RouteTreeResult? matchRoute(String path) {
     final match = _matcher.matchRoute(path);
     if (match == null) return null;
@@ -28,6 +37,7 @@ class RouteTree {
 /// A class representing the result of a route matching operation.
 class MatchResult {
   /// Route found that matches the result
+  /// eg: '/user/:id'
   final String path;
 
   /// Route parameters eg: adding 'user/:id' the match result for 'user/123' will be: {id: 123}
@@ -40,45 +50,50 @@ class MatchResult {
 }
 
 // A class representing a node in a routing tree.
-class RouteNode {
-  String path;
-  RouteNode? parent;
-  List<RouteNode> children = [];
+class _RouteNode {
+  final String _path;
+  final List<_RouteNode> children = [];
+  final _RouteNode? parent;
 
-  RouteNode(this.path, {this.parent});
+  _RouteNode(this._path, {required this.parent});
 
+  /// Returns true if the node is the root node.
   bool get isRoot => parent == null;
 
+  /// Returns the full path of the node.
   String get fullPath {
     if (isRoot) {
       return '/';
     } else {
       final parentPath = parent?.fullPath == '/' ? '' : parent?.fullPath;
-      return '$parentPath/$path';
+      return '$parentPath/$_path';
     }
   }
 
+  /// Returns true if the node has children.
   bool get hasChildren => children.isNotEmpty;
 
-  void addChild(RouteNode child) {
+  /// Adds a child node to the current node.
+  void addChild(_RouteNode child) {
     children.add(child);
-    child.parent = this;
   }
 
-  RouteNode? findChild(String name) {
-    return children.firstWhereOrNull((node) => node.path == name);
+  /// Returns the child node with the given name, if any.
+  _RouteNode? findChild(String name) {
+    return children.firstWhereOrNull((node) => node._path == name);
   }
 
+  /// Returns true if the given name matches the node's path.
   bool matches(String name) {
-    return name == path || path == '*' || path.startsWith(':');
+    return name == _path || _path == '*' || _path.startsWith(':');
   }
 
   @override
-  String toString() => 'RouteNode(name: $path, children: $children)';
+  String toString() => 'RouteNode(name: $_path, children: $children)';
 }
 
-class RouteMatcher {
-  final RouteNode _root = RouteNode('/');
+class _RouteMatcher {
+  final _RouteNode _root = _RouteNode('/', parent: null);
 
   void addRoute(String path) {
     final segments = _parsePath(path);
@@ -89,14 +104,14 @@ class RouteMatcher {
       if (existingChild != null) {
         currentNode = existingChild;
       } else {
-        final newChild = RouteNode(segment);
+        final newChild = _RouteNode(segment, parent: currentNode);
         currentNode.addChild(newChild);
         currentNode = newChild;
       }
     }
   }
 
-  RouteNode? _findChild(RouteNode currentNode, String segment) {
+  _RouteNode? _findChild(_RouteNode currentNode, String segment) {
     return currentNode.children
         .firstWhereOrNull((node) => node.matches(segment));
   }
@@ -113,8 +128,8 @@ class RouteMatcher {
       if (child == null) {
         return null;
       } else {
-        if (child.path.startsWith(':')) {
-          parameters[child.path.substring(1)] = segment;
+        if (child._path.startsWith(':')) {
+          parameters[child._path.substring(1)] = segment;
         }
 
         if (child.children.length == segments.length) {

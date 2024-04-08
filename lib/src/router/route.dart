@@ -1,7 +1,7 @@
-part of server_nano;
+part of '../../server_nano.dart';
 
 typedef HttpHandler = void Function(ContextRequest req, ContextResponse res);
-typedef WsHandler = void Function(GetSocket socket);
+typedef WsHandler = void Function(NanoSocket socket);
 
 class Handler {
   final HttpHandler? httpHandler;
@@ -10,8 +10,9 @@ class Handler {
 
   Handler({required this.method, this.httpHandler, this.wsHandler});
 
-  final Map<String, HashSet<GetSocket>> _rooms = <String, HashSet<GetSocket>>{};
-  final HashSet<GetSocket> _sockets = HashSet<GetSocket>();
+  final Map<String, HashSet<NanoSocket>> _rooms =
+      <String, HashSet<NanoSocket>>{};
+  final HashSet<NanoSocket> _sockets = HashSet<NanoSocket>();
 
   Future<void> handle(HttpRequest req,
       {required MatchResult match,
@@ -31,7 +32,7 @@ class Handler {
 
     if (localMethod == Method.ws) {
       WebSocketTransformer.upgrade(req).then((sock) {
-        final getSocket = GetSocket.fromRaw(sock, _rooms, _sockets);
+        final getSocket = NanoSocket.fromRaw(sock, _rooms, _sockets);
         wsHandler!(getSocket);
       });
     } else {
