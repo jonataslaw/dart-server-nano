@@ -1,3 +1,11 @@
+# 1.4.0
+
+- Improve error handling
+- Base websockets rooms in my RelationalMap implementation, that is less error prone and more efficient (a lot more efficient in fact)
+- Separate the websocket server from the http server. You should select two different ports for each one now (`port` and `wsPort`), it is a way more performant and scalable approach. Note: You can use the old approach by setting the serverMode: ServerMode.compatibility in the listen function, but it is not recommended.
+- Add a new method `broadcastEventToRoom` that sends a message to all clients in a room except the sender
+- Update benchmarks to reflect the new changes (it is a little bit faster now)
+
 # 1.3.0
 
 - Update codebase

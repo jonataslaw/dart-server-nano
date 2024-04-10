@@ -62,20 +62,20 @@ void main() {
 Here is a test using `wrk` to measure the performance of the server in a Macbook Pro M1:
 
 ```shell
-@MacBook-Pro dart-server % wrk -t 6 -c 120 -d 10s --latency http://localhost:3000/
+@MacBook-Pro ~ % wrk -t 6 -c 120 -d 10s --latency http://localhost:3000/
 Running 10s test @ http://localhost:3000/
   6 threads and 120 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.92ms    4.66ms 126.59ms   95.70%
-    Req/Sec    17.22k     3.79k   88.09k    90.02%
+    Latency     1.83ms    4.60ms  93.28ms   96.85%
+    Req/Sec    17.12k     3.03k   20.57k    90.17%
   Latency Distribution
-     50%    0.98ms
-     75%    1.46ms
-     90%    2.65ms
-     99%   22.92ms
-  1029931 requests in 10.10s, 214.12MB read
-Requests/sec: 101972.97
-Transfer/sec:     21.20MB
+     50%    1.02ms
+     75%    1.38ms
+     90%    2.01ms
+     99%   28.34ms
+  1022096 requests in 10.00s, 212.49MB read
+Requests/sec: 102164.16
+Transfer/sec:     21.24MB
 ```
 
 In this test, we have a endopoint that returns a simple json object.

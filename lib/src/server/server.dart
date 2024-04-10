@@ -6,6 +6,8 @@ class _IsolateMessage {
   final String? certificateChain;
   final String? privateKey;
   final String? password;
+  final int? wsPort;
+  final ServerMode serverMode;
 
   _IsolateMessage({
     required this.host,
@@ -13,51 +15,127 @@ class _IsolateMessage {
     required this.certificateChain,
     required this.privateKey,
     required this.password,
+    required this.wsPort,
+    required this.serverMode,
   });
+
+  _IsolateMessage copyWith({
+    String? host,
+    int? port,
+    String? certificateChain,
+    String? privateKey,
+    String? password,
+    int? wsPort,
+    ServerMode? serverMode,
+  }) {
+    return _IsolateMessage(
+      host: host ?? this.host,
+      port: port ?? this.port,
+      certificateChain: certificateChain ?? this.certificateChain,
+      privateKey: privateKey ?? this.privateKey,
+      password: password ?? this.password,
+      wsPort: wsPort ?? this.wsPort,
+      serverMode: serverMode ?? this.serverMode,
+    );
+  }
+}
+
+enum ServerMode {
+  performance,
+  compatibility,
 }
 
 class Server {
-  HttpServer? _server;
+  // HttpServer? _server;
   VirtualDirectory? _staticServer;
   final RouteTree _tree = RouteTree();
   final List<Middleware> _middlewares = [];
+  bool _hasWebsocket = false;
 
   Future<Server> listen({
     String host = '0.0.0.0',
     int port = 8080,
+    int? wsPort,
     String? certificateChain,
     String? privateKey,
     String? password,
+    ServerMode serverMode = ServerMode.performance,
   }) async {
-    final cpus = Platform.numberOfProcessors - 1;
+    final hasSamePort = wsPort == port;
+    if (hasSamePort && serverMode == ServerMode.performance) {
+      throw SamePortException();
+    }
+    if (_hasWebsocket &&
+        serverMode == ServerMode.performance &&
+        wsPort == null) {
+      throw WebSocketPortRequiredException();
+    }
 
-    final message = _IsolateMessage(
+    final serverIsolateMessage = _IsolateMessage(
       host: host,
       port: port,
+      wsPort: null, // It is not necessary, but I am making it explicit.
       certificateChain: certificateChain,
       privateKey: privateKey,
       password: password,
+      serverMode: serverMode,
     );
-    for (int i = 0; i < cpus; i++) {
-      await Isolate.spawn(_listen, message);
+
+    if (serverMode == ServerMode.performance) {
+      // Determine the number of isolates to spawn for handling requests.
+      // Always leave one processor free for the main thread.
+      final int totalIsolates = Platform.numberOfProcessors - 1;
+
+      // If websockets are needed, adjust the number of isolates for regular requests
+      final int regularIsolates =
+          _hasWebsocket ? totalIsolates - 1 : totalIsolates;
+
+      // Spawn isolates for handling regular requests
+      for (int i = 0; i < regularIsolates; i++) {
+        await Isolate.spawn(
+          _listen,
+          serverIsolateMessage,
+        );
+      }
+
+      // If websockets are needed, spawn a dedicated isolate for handling websocket connections
+      if (wsPort != null && _hasWebsocket) {
+        final websocketIsolateMessage = serverIsolateMessage.copyWith(
+          wsPort: wsPort,
+        );
+
+        await Isolate.spawn(
+          _listen,
+          websocketIsolateMessage,
+        );
+      }
     }
 
-    await _listen(message);
+    await _listen(serverIsolateMessage);
 
     logger('Server started, listening on $host:$port');
+
+    if (wsPort != null) {
+      logger('Websocket server started, listening on $host:$wsPort');
+    }
 
     return this;
   }
 
   Future<Server> _listen(_IsolateMessage message) {
+    final wsPort = message.wsPort;
+    final isWs = wsPort !=
+        null; // this line is defined in serverIsolateMessage and websocketIsolateMessage
     final host = message.host;
-    final port = message.port;
+    final serverMode = message.serverMode;
+    final port = wsPort ?? message.port;
+
     final certificateChain = message.certificateChain;
     final privateKey = message.privateKey;
     final password = message.password;
 
     Server handle(HttpServer server) {
-      _server = server;
+      // _server = server;
       server.listen((HttpRequest req) {
         final match = _tree.matchRoute(req.uri.path);
 
@@ -69,7 +147,12 @@ class Server {
             return;
           }
 
-          handler.handle(req, match: match.match, middlewares: _middlewares);
+          handler.handle(
+            req,
+            match: match.match,
+            middlewares: _middlewares,
+            isWebsocketServer: isWs || serverMode == ServerMode.compatibility,
+          );
         } else if (_staticServer != null) {
           _staticServer!.serveRequest(req);
         } else {
@@ -94,9 +177,9 @@ class Server {
     return HttpServer.bind(host, port, shared: true).then(handle);
   }
 
-  void stop() {
-    _server?.close();
-  }
+  // void stop() {
+  //   _server?.close();
+  // }
 
   Method _reqMethod(HttpRequest req) {
     if (req.headers.value('connection')?.toLowerCase() == 'upgrade') {
@@ -128,6 +211,7 @@ class Server {
   }
 
   Server ws(String path, WsHandler handler) {
+    _hasWebsocket = true;
     request(path, Handler(method: Method.ws, wsHandler: handler));
     return this;
   }

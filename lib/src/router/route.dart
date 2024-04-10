@@ -10,13 +10,14 @@ class Handler {
 
   Handler({required this.method, this.httpHandler, this.wsHandler});
 
-  final Map<String, HashSet<NanoSocket>> _rooms =
-      <String, HashSet<NanoSocket>>{};
-  final HashSet<NanoSocket> _sockets = HashSet<NanoSocket>();
+  final SocketManager _socketManager = SocketManager();
 
-  Future<void> handle(HttpRequest req,
-      {required MatchResult match,
-      required List<Middleware> middlewares}) async {
+  Future<void> handle(
+    HttpRequest req, {
+    required MatchResult match,
+    required List<Middleware> middlewares,
+    required bool isWebsocketServer,
+  }) async {
     final localMethod = method;
 
     var request = ContextRequest(req, localMethod, match.parameters);
@@ -30,13 +31,14 @@ class Handler {
       }
     }
 
-    if (localMethod == Method.ws) {
+    if (isWebsocketServer && localMethod == Method.ws) {
       WebSocketTransformer.upgrade(req).then((sock) {
-        final getSocket = NanoSocket.fromRaw(sock, _rooms, _sockets);
+        final getSocket = NanoSocket.fromRaw(sock, _socketManager);
         wsHandler!(getSocket);
       });
-    } else {
-      httpHandler!(request, response);
+      return;
+    } else if (localMethod != Method.ws) {
+      httpHandler?.call(request, response);
     }
   }
 }
