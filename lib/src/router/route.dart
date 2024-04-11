@@ -8,7 +8,11 @@ class Handler {
   final WsHandler? wsHandler;
   final Method method;
 
-  Handler({required this.method, this.httpHandler, this.wsHandler});
+  Handler({
+    required this.method,
+    this.httpHandler,
+    this.wsHandler,
+  });
 
   final SocketManager _socketManager = SocketManager();
 
@@ -17,6 +21,7 @@ class Handler {
     required MatchResult match,
     required List<Middleware> middlewares,
     required bool isWebsocketServer,
+    required bool websocketOnly,
   }) async {
     final localMethod = method;
 
@@ -36,8 +41,12 @@ class Handler {
         final getSocket = NanoSocket.fromRaw(sock, _socketManager);
         wsHandler!(getSocket);
       });
-      return;
     } else if (localMethod != Method.ws) {
+      if (websocketOnly) {
+        response.status(HttpStatus.badRequest);
+        response.close();
+        return;
+      }
       httpHandler?.call(request, response);
     }
   }
