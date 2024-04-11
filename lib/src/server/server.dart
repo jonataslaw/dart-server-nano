@@ -8,6 +8,7 @@ class _IsolateMessage {
   final String? password;
   final int? wsPort;
   final ServerMode serverMode;
+  final bool websocketOnly;
 
   _IsolateMessage({
     required this.host,
@@ -17,6 +18,7 @@ class _IsolateMessage {
     required this.password,
     required this.wsPort,
     required this.serverMode,
+    required this.websocketOnly,
   });
 
   _IsolateMessage copyWith({
@@ -27,6 +29,7 @@ class _IsolateMessage {
     String? password,
     int? wsPort,
     ServerMode? serverMode,
+    bool? websocketOnly,
   }) {
     return _IsolateMessage(
       host: host ?? this.host,
@@ -36,6 +39,7 @@ class _IsolateMessage {
       password: password ?? this.password,
       wsPort: wsPort ?? this.wsPort,
       serverMode: serverMode ?? this.serverMode,
+      websocketOnly: websocketOnly ?? this.websocketOnly,
     );
   }
 }
@@ -60,6 +64,7 @@ class Server {
     String? privateKey,
     String? password,
     ServerMode serverMode = ServerMode.performance,
+    bool useWebsocketInMainThread = false,
   }) async {
     final hasSamePort = wsPort == port;
     if (hasSamePort && serverMode == ServerMode.performance) {
@@ -79,6 +84,7 @@ class Server {
       privateKey: privateKey,
       password: password,
       serverMode: serverMode,
+      websocketOnly: false,
     );
 
     if (serverMode == ServerMode.performance) {
@@ -98,16 +104,25 @@ class Server {
         );
       }
 
-      // If websockets are needed, spawn a dedicated isolate for handling websocket connections
-      if (wsPort != null && _hasWebsocket) {
+      // because of WebSocketPortRequiredException in ServerMode.performance when there are websockets, wsPort is not null
+      if (_hasWebsocket) {
         final websocketIsolateMessage = serverIsolateMessage.copyWith(
           wsPort: wsPort,
+          websocketOnly: true,
         );
-
-        await Isolate.spawn(
-          _listen,
-          websocketIsolateMessage,
-        );
+        if (useWebsocketInMainThread) {
+          await _listen(websocketIsolateMessage);
+        } else {
+          await Isolate.spawn(
+            _listen,
+            websocketIsolateMessage,
+          );
+        }
+      } else {
+        if (wsPort != null) {
+          logger(
+              'No websocket server started, because there are no websocket routes. The server is running only in default port [$port].');
+        }
       }
     }
 
@@ -115,7 +130,9 @@ class Server {
 
     logger('Server started, listening on $host:$port');
 
-    if (wsPort != null) {
+    if (wsPort != null &&
+        _hasWebsocket &&
+        serverMode == ServerMode.performance) {
       logger('Websocket server started, listening on $host:$wsPort');
     }
 
@@ -133,6 +150,7 @@ class Server {
     final certificateChain = message.certificateChain;
     final privateKey = message.privateKey;
     final password = message.password;
+    final websocketOnly = message.websocketOnly;
 
     Server handle(HttpServer server) {
       // _server = server;
@@ -152,6 +170,7 @@ class Server {
             match: match.match,
             middlewares: _middlewares,
             isWebsocketServer: isWs || serverMode == ServerMode.compatibility,
+            websocketOnly: websocketOnly,
           );
         } else if (_staticServer != null) {
           _staticServer!.serveRequest(req);

@@ -23,5 +23,9 @@ void main() {
         'connected', 'tech-group', 'User connected to tech-group');
   });
 
-  server.listen(port: 3000, wsPort: 3001);
+  server.listen(
+    port: 3000,
+    wsPort: 3001,
+    useWebsocketInMainThread: true,
+  );
 }
