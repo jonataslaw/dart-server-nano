@@ -117,7 +117,7 @@
     },
     {
       "name": "meta",
-      "rootUri": "file:///Users/jonatasborges/.pub-cache/hosted/pub.dev/meta-1.9.1",
+      "rootUri": "file:///Users/jonatasborges/.pub-cache/hosted/pub.dev/meta-1.14.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -225,19 +225,19 @@
     },
     {
       "name": "test",
-      "rootUri": "file:///Users/jonatasborges/.pub-cache/hosted/pub.dev/test-1.25.2",
+      "rootUri": "file:///Users/jonatasborges/.pub-cache/hosted/pub.dev/test-1.25.3",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "test_api",
-      "rootUri": "file:///Users/jonatasborges/.pub-cache/hosted/pub.dev/test_api-0.7.0",
+      "rootUri": "file:///Users/jonatasborges/.pub-cache/hosted/pub.dev/test_api-0.7.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "test_core",
-      "rootUri": "file:///Users/jonatasborges/.pub-cache/hosted/pub.dev/test_core-0.6.0",
+      "rootUri": "file:///Users/jonatasborges/.pub-cache/hosted/pub.dev/test_core-0.6.1",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -284,7 +284,7 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2024-04-11T22:50:29.620321Z",
+  "generated": "2024-04-13T04:46:56.284697Z",
   "generator": "pub",
   "generatorVersion": "3.3.3"
 }

@@ -90,7 +90,7 @@ class Server {
     if (serverMode == ServerMode.performance) {
       // Determine the number of isolates to spawn for handling requests.
       // Always leave one processor free for the main thread.
-      final int totalIsolates = Platform.numberOfProcessors - 1;
+      final int totalIsolates = Platform.numberOfProcessors ~/ 2;
 
       // If websockets are needed, adjust the number of isolates for regular requests
       final int regularIsolates =

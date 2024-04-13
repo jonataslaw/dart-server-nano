@@ -1,3 +1,7 @@
+# 1.5.1
+
+- Small performance adjustments
+
 # 1.5.0
 
 - Added capability to run websockets servers in main thread. Although it is not recommended to manipulate sockets outside of their scope, there is now this possibility, running the websockets server on the main thread. The default behavior is still to use isolates for everything, however if you need to you can change this using: `useWebsocketInMainThread: true` in the listen function. Note: in mobile applications, using websockets in the main thread can cause UI freezes when a large amount of data is being sent or received. The default behavior uses isolates to avoid this problem. Change this behavior only if you know what you are doing.
