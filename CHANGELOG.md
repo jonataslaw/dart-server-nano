@@ -1,3 +1,9 @@
+# 1.5.3
+
+- Allow to set multiple headers. 
+- Allow to write into Context Response without closing the connection. 
+- Allow adding a stream into Context Response without closing the connection.
+
 # 1.5.2
 
 - Update dependencies and dart sdk

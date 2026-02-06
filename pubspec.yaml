@@ -1,5 +1,5 @@
 name: server_nano
-version: 1.5.2
+version: 1.5.3
 homepage: https://github.com/jonataslaw/dart-server-nano
 description: A light, very fast, and friendly http and websocket server written in dart.
 

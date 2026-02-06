@@ -42,6 +42,15 @@ class ContextResponse {
     return this;
   }
 
+  /// Sets multiple headers with the given name and value.
+  ContextResponse setHeaders(Map<String, Object> headers) {
+    for (var header in headers.entries) {
+      _response.headers.set(header.key, header.value);
+    }
+
+    return this;
+  }
+
   DisposeCallback? _dispose;
 
   /// Adds a callback that will be called when the response is disposed.
@@ -148,6 +157,23 @@ class ContextResponse {
   Future send(Object string) async {
     _response.write(string);
     return close();
+  }
+
+  /// Write the given object as a response without closing the connection. Useful for streaming.
+  /// You are responsible yourself to call close finally.
+  /// If the object is a string, it will be written to the response.
+  /// If the object is a map or list, it will be encoded to json and sent.
+  ContextResponse write(Object string) {    
+    _response.write(string);
+    return this;
+  }
+
+  /// Add a Stream to the current connection without closing the connection. 
+  /// Useful for streaming.
+  /// You are responsible yourself to call close finally.
+  Future<ContextResponse> addStream(Stream<List<int>> stream) async {
+    await _response.addStream(stream);
+    return this;
   }
 
   /// Sends the given object as a json response.
