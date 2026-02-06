@@ -1,3 +1,7 @@
+# 1.5.2
+
+- Update dependencies and dart sdk
+
 # 1.5.1
 
 - Small performance adjustments
